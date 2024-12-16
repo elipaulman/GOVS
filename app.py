@@ -94,6 +94,7 @@ def index():
                 return redirect(request.url)
     return render_template('index.html')
 
+@app.route('/instructions')
 def instructions():
     return render_template('instructions.html')
 
