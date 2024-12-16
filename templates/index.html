@@ -6,10 +6,73 @@
     <title>Attendance Processor</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: #fff;
+        font-family: 'Arial', sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        backdrop-filter: blur(10px);
+      }
+      h1 {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: #fff;
+      }
+      label {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        color: #ddd;
+      }
+      .form-control-file {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 10px;
+        border: none;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+      }
+      .btn-primary {
+        background: #ff6b6b;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        transition: 0.3s;
+      }
+      .btn-primary:hover {
+        background: #ff4757;
+        transform: scale(1.05);
+      }
+      .list-group-item-info {
+        background-color: rgba(0, 123, 255, 0.6);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+      .list-group {
+        padding-left: 0;
+      }
+    </style>
   </head>
   <body>
-    <div class="container mt-5">
-      <h1 class="mb-4">Upload Attendance Files</h1>
+    <div class="container">
+      <h1>Upload Attendance Files</h1>
       <form method="post" enctype="multipart/form-data">
         <div class="form-group">
           <label for="weekly_file">Weekly Attendance Report:</label>
