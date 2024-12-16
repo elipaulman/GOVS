@@ -94,5 +94,8 @@ def index():
                 return redirect(request.url)
     return render_template('index.html')
 
+def instructions():
+    return render_template('instructions.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
