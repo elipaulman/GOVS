@@ -1,7 +1,8 @@
 import os
 import pandas as pd
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, send_file
 from werkzeug.utils import secure_filename
+from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -83,11 +84,11 @@ def index():
                     output_data.append(row.to_dict())
                     last_hours_required = row['Hours Required']
                 output_df = pd.DataFrame(output_data)
-                # Save the result to a CSV file in the Downloads folder
-                downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
-                output_path = os.path.join(downloads_folder, "Sorted_Attendance_Report.csv")
-                output_df.to_csv(output_path, index=False)
-                flash('File successfully processed and saved to Downloads folder')
+                # Save the result to a CSV file in memory
+                output = BytesIO()
+                output_df.to_csv(output, index=False)
+                output.seek(0)
+                return send_file(output, mimetype='text/csv', as_attachment=True, download_name='Sorted_Attendance_Report.csv')
             except Exception as e:
                 flash(f'An error occurred: {e}')
                 return redirect(request.url)
