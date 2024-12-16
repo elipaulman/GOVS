@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Attendance Processor</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Upload Attendance Files</h1>
+      <form method="post" enctype="multipart/form-data">
+        <div>
+          <label for="weekly_file">Weekly Attendance Report:</label>
+          <input type="file" name="weekly_file" id="weekly_file">
+        </div>
+        <div>
+          <label for="attendance_file">Attendance Report:</label>
+          <input type="file" name="attendance_file" id="attendance_file">
+        </div>
+        <button type="submit">Upload</button>
+      </form>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </body>
+</html>
