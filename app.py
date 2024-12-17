@@ -34,6 +34,7 @@ def index():
         
         weekly_file = request.files['weekly_file']
         attendance_file = request.files['attendance_file']
+        sort_option = request.form.get('sort_option', 'hours_last_first')
         if weekly_file.filename == '' or attendance_file.filename == '':
             flash('No selected file')
             return redirect(request.url)
@@ -63,8 +64,11 @@ def index():
                     how='inner',
                     suffixes=('_Cumulative', '_Weekly')
                 )
-                # Sort by Hours Required, then by Last Name and First Name
-                merged_data.sort_values(by=['Hours Required', 'Last Name', 'First Name'], inplace=True)
+                # Sort data based on selected option
+                if sort_option == 'last_first':
+                    merged_data.sort_values(by=['Last Name', 'First Name'], inplace=True)
+                else:
+                    merged_data.sort_values(by=['Hours Required', 'Last Name', 'First Name'], inplace=True)
                 # Limit floats to 2 decimal places
                 merged_data['Total Hours_Weekly'] = merged_data['Total Hours_Weekly'].round(2)
                 # Rename columns
@@ -75,14 +79,17 @@ def index():
                 }, inplace=True)
                 # Select the required columns with swapped positions
                 final_data = merged_data[['Last Name', 'First Name', 'Lessons Complete', 'Difference in Lessons', 'Weekly Hours', 'Total Cumulative Hours', 'Hours Required']]
-                # Insert blank lines between different values for Hours Required
+                # Insert blank lines between different values for Hours Required if sorting by hours
                 output_data = []
-                last_hours_required = None
-                for _, row in final_data.iterrows():
-                    if last_hours_required is not None and row['Hours Required'] != last_hours_required:
-                        output_data.append({col: '' for col in final_data.columns})
-                    output_data.append(row.to_dict())
-                    last_hours_required = row['Hours Required']
+                if sort_option != 'last_first':
+                    last_hours_required = None
+                    for _, row in final_data.iterrows():
+                        if last_hours_required is not None and row['Hours Required'] != last_hours_required:
+                            output_data.append({col: '' for col in final_data.columns})
+                        output_data.append(row.to_dict())
+                        last_hours_required = row['Hours Required']
+                else:
+                    output_data = final_data.to_dict(orient='records')
                 output_df = pd.DataFrame(output_data)
                 # Save the result to a CSV file in memory
                 output = BytesIO()

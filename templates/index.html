@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Attendance Processor</title>
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -38,7 +40,7 @@
         margin-bottom: 5px;
         color: #ccc;
       }
-      .form-control-file {
+      .form-control-file, .form-control {
         background: rgba(255, 255, 255, 0.1);
         border-radius: 10px;
         padding: 10px;
@@ -99,6 +101,13 @@
         <div class="form-group">
           <label for="attendance_file">Attendance Report:</label>
           <input type="file" class="form-control-file" name="attendance_file" id="attendance_file">
+        </div>
+        <div class="form-group">
+          <label for="sort_option">Sort By:</label>
+          <select class="form-control" name="sort_option" id="sort_option">
+            <option value="hours_last_first">Required Hours, Last Name, First Name</option>
+            <option value="last_first">Last Name, First Name</option>
+          </select>
         </div>
         <button type="submit" class="btn btn-primary">Upload</button>
       </form>
