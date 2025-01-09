@@ -55,6 +55,9 @@ def process_files(weekly_path, attendance_path, sort_option, selected_columns):
             suffixes=('_Cumulative', '_Weekly')
         )
 
+        # Calculate the "Hours Ahead/Behind" column
+        merged_data['Hours Ahead/Behind'] = merged_data['Total Hours_Cumulative'] - merged_data['Hours Required']
+
         # Sort data based on selected option
         if sort_option == 'last_first':
             merged_data.sort_values(by=['Last Name', 'First Name'], inplace=True)
@@ -62,8 +65,9 @@ def process_files(weekly_path, attendance_path, sort_option, selected_columns):
             merged_data.sort_values(by=['Hours Required', 'Last Name', 'First Name'], inplace=True)
 
         # Limit floats to 2 decimal places
-        if 'Total Hours_Weekly' in merged_data.columns:
-            merged_data['Total Hours_Weekly'] = merged_data['Total Hours_Weekly'].round(2)
+        for col in ['Total Hours_Cumulative', 'Hours Ahead/Behind']:
+            if col in merged_data.columns:
+                merged_data[col] = merged_data[col].round(2)
 
         # Rename columns
         merged_data.rename(columns={
