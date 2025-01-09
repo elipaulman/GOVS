@@ -237,12 +237,21 @@
               />
               Hours Required
             </li>
+            <li class="sortable-item" data-value="Hours Behind/Ahead">
+              <input
+                type="checkbox"
+                name="columns"
+                value="Hours Behind/Ahead"
+                checked
+              />
+              Hours Behind/Ahead
+            </li>
           </ul>
           <input
             type="hidden"
             name="column_order"
             id="column_order"
-            value="Weekly Hours,Lessons Complete,Difference in Lessons,Total Cumulative Hours,Hours Required"
+            value="Weekly Hours,Lessons Complete,Difference in Lessons,Total Cumulative Hours,Hours Required,Hours Behind/Ahead"
           />
         </div>
         <button type="submit" class="btn btn-primary">Generate</button>
