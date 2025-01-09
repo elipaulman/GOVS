@@ -3,19 +3,19 @@ import os
 import pandas as pd
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QLabel, QPushButton, QFileDialog, 
-                             QMessageBox, QProgressBar)
+                             QMessageBox, QProgressBar, QCheckBox)
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QFont
 
 class FileProcessor(QThread):
     processing_complete = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
     progress_updated = pyqtSignal(int)
 
-    def __init__(self, weekly_path, attendance_path):
+    def __init__(self, weekly_path, attendance_path, include_hours_behind):
         super().__init__()
         self.weekly_path = weekly_path
         self.attendance_path = attendance_path
+        self.include_hours_behind = include_hours_behind
 
     def time_to_hours(self, time_str):
         """Convert time strings like '90:42' to decimal hours."""
@@ -69,8 +69,15 @@ class FileProcessor(QThread):
                 'Total Hours_Cumulative': 'Total Cumulative Hours'
             }, inplace=True)
 
+            # Calculate Hours Behind/Ahead if selected
+            if self.include_hours_behind:
+                merged_data['Hours Behind/Ahead'] = merged_data['Total Cumulative Hours'] - merged_data['Hours Required']
+
             # Select the required columns with swapped positions
-            final_data = merged_data[['Last Name', 'First Name', 'Lessons Complete', 'Difference in Lessons', 'Weekly Hours', 'Total Cumulative Hours', 'Hours Required']]
+            columns = ['Last Name', 'First Name', 'Lessons Complete', 'Difference in Lessons', 'Weekly Hours', 'Total Cumulative Hours', 'Hours Required']
+            if self.include_hours_behind:
+                columns.append('Hours Behind/Ahead')
+            final_data = merged_data[columns]
 
             # Insert blank lines between different values for Hours Required
             output_data = []
@@ -99,7 +106,7 @@ class AttendanceProcessorApp(QMainWindow):
         super().__init__()
         self.setWindowTitle('Attendance Report Processor')
         self.setGeometry(100, 100, 500, 400)
-        
+
         # Central Widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -125,6 +132,10 @@ class AttendanceProcessorApp(QMainWindow):
         self.attendance_button.clicked.connect(self.select_attendance_file)
         attendance_layout.addWidget(self.attendance_label)
         attendance_layout.addWidget(self.attendance_button)
+
+        # Checkbox for Hours Behind/Ahead
+        self.include_hours_checkbox = QCheckBox("Include Hours Behind/Ahead")
+        main_layout.addWidget(self.include_hours_checkbox)
 
         # Process Button
         self.process_button = QPushButton('Process Files')
@@ -168,13 +179,14 @@ class AttendanceProcessorApp(QMainWindow):
         self.weekly_button.setEnabled(False)
         self.attendance_button.setEnabled(False)
         self.process_button.setEnabled(False)
-        
+
         # Reset progress and status
         self.progress_bar.setValue(0)
         self.status_label.setText('')
 
         # Create and start processing thread
-        self.processor_thread = FileProcessor(self.weekly_file_path, self.attendance_file_path)
+        include_hours_behind = self.include_hours_checkbox.isChecked()
+        self.processor_thread = FileProcessor(self.weekly_file_path, self.attendance_file_path, include_hours_behind)
         self.processor_thread.processing_complete.connect(self.on_processing_complete)
         self.processor_thread.error_occurred.connect(self.on_processing_error)
         self.processor_thread.progress_updated.connect(self.update_progress)
@@ -186,7 +198,7 @@ class AttendanceProcessorApp(QMainWindow):
     def on_processing_complete(self, message):
         QMessageBox.information(self, "Processing Complete", message)
         self.status_label.setText("Processing Complete!")
-        
+
         # Re-enable buttons
         self.weekly_button.setEnabled(True)
         self.attendance_button.setEnabled(True)
@@ -201,7 +213,7 @@ class AttendanceProcessorApp(QMainWindow):
     def on_processing_error(self, error):
         QMessageBox.critical(self, "Processing Error", str(error))
         self.status_label.setText("Processing Failed!")
-        
+
         # Re-enable buttons
         self.weekly_button.setEnabled(True)
         self.attendance_button.setEnabled(True)
