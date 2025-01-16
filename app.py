@@ -21,14 +21,17 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def time_to_hours(time_str):
-    """Convert time strings like '90:42' to decimal hours."""
+    """Convert time strings like '90:42' to 'HH:MM' format."""
     if pd.isnull(time_str) or time_str == "---":
-        return 0
+        return "00:00"
     try:
         hours, minutes = map(int, time_str.split(':'))
-        return round(hours + minutes / 60, 2)
+        total_minutes = hours * 60 + minutes
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        return f"{hours:02}:{minutes:02}"
     except ValueError:
-        return 0
+        return "00:00"
 
 def process_files(weekly_path, attendance_path, sort_option, selected_columns):
     try:
