@@ -56,7 +56,7 @@ def process_files(weekly_path, attendance_path, sort_option, selected_columns):
 
         # Process Weekly Attendance Report data
         weekly_attendance_report['Total Hours'] = weekly_attendance_report['TotalMin'].apply(time_to_hours)
-        weekly_attendance_report['Weekly Hours'] = weekly_attendance_report['WeeklyHours'].apply(time_to_hours)
+        weekly_attendance_report['Weekly Hours'] = weekly_attendance_report['Total Hours_Weekly'].apply(time_to_hours)
 
         # Merge datasets
         columns_to_merge = ['Last Name', 'First Name', 'Lessons Complete', 'Difference', 'Hours Required', 'Total Hours']
