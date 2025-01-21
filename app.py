@@ -25,13 +25,22 @@ def time_to_hours(time_str):
     if pd.isnull(time_str) or time_str == "---":
         return "00:00"
     try:
-        hours, minutes = map(int, time_str.split(':'))
+        # If the input has seconds, split into hours, minutes, and seconds
+        parts = time_str.split(':')
+        if len(parts) == 3:
+            hours, minutes, _ = map(int, parts)  # Ignore the seconds part
+        elif len(parts) == 2:
+            hours, minutes = map(int, parts)
+        else:
+            return "00:00"
+        # Convert total time to HH:MM format
         total_minutes = hours * 60 + minutes
         hours = total_minutes // 60
         minutes = total_minutes % 60
         return f"{hours:02}:{minutes:02}"
     except ValueError:
         return "00:00"
+
 
 def process_files(weekly_path, attendance_path, sort_option, selected_columns):
     try:
