@@ -29,7 +29,6 @@ def time_to_hours(time_val):
         time_str = str(time_val).strip()
         # Split into parts (could be HH:MM:SS or H:MM)
         parts = time_str.split(':')
-        elif len(parts) == 2:
         # Extract hours and minutes (ignore seconds)
         hours = int(parts[0]) if len(parts) >= 1 else 0
         minutes = int(parts[1]) if len(parts) >= 2 else 0
