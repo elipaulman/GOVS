@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CP0JQS9JWY"></script>
@@ -28,124 +28,451 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <script>
+      (function () {
+        try {
+          var storageKey = 'attendance-theme';
+          var storedTheme = localStorage.getItem(storageKey);
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = storedTheme || (prefersDark ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (error) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        --container-bg: #ffffff;
+        --container-shadow-primary: rgba(0, 0, 0, 0.08);
+        --container-shadow-secondary: rgba(0, 0, 0, 0.04);
+        --text-primary: #1a202c;
+        --text-secondary: #718096;
+        --text-label: #2d3748;
+        --input-bg: #f7fafc;
+        --input-border: #e2e8f0;
+        --input-text: #2d3748;
+        --input-hover-border: #cbd5e0;
+        --input-focus-border: #4299e1;
+        --input-focus-bg: #ffffff;
+        --input-focus-shadow: rgba(66, 153, 225, 0.1);
+        --checkbox-accent: #4299e1;
+        --sortable-bg: #ffffff;
+        --sortable-border: #e2e8f0;
+        --sortable-placeholder-bg: #edf2f7;
+        --sortable-placeholder-border: #cbd5e0;
+        --sortable-handle: #cbd5e0;
+        --primary-button-bg: #4299e1;
+        --primary-button-hover-bg: #3182ce;
+        --primary-button-text: #ffffff;
+        --link-color: #4299e1;
+        --link-hover-color: #3182ce;
+        --list-item-bg: #e6fffa;
+        --list-item-text: #234e52;
+        --list-item-border: #81e6d9;
+        --divider-line: #e2e8f0;
+        --divider-pill-bg: #ffffff;
+        --divider-pill-text: #a0aec0;
+        --drag-hover-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        --theme-toggle-bg: rgba(226, 232, 240, 0.7);
+        --theme-toggle-border: rgba(203, 213, 224, 0.8);
+        --theme-toggle-text: #2d3748;
+        --theme-toggle-hover-bg: rgba(203, 213, 224, 1);
+      }
+
       body {
-        background: linear-gradient(135deg, #6a11cb, #2575fc);
-        color: #fff;
-        font-family: "Arial", sans-serif;
+        background: var(--bg-gradient);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0;
+        padding: 20px;
+        color: var(--text-primary);
+        transition: background 0.3s ease, color 0.3s ease;
+        color-scheme: light;
       }
+
+      [data-theme="dark"] body,
+      body[data-theme="dark"] {
+        --bg-gradient: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        --container-bg: #1f2933;
+        --container-shadow-primary: rgba(15, 23, 42, 0.7);
+        --container-shadow-secondary: rgba(15, 23, 42, 0.4);
+        --text-primary: #f7fafc;
+        --text-secondary: #cbd5e0;
+        --text-label: #e2e8f0;
+        --input-bg: #111827;
+        --input-border: #374151;
+        --input-text: #f7fafc;
+        --input-hover-border: #4b5563;
+        --input-focus-border: #63b3ed;
+        --input-focus-bg: #1f2933;
+        --input-focus-shadow: rgba(99, 179, 237, 0.25);
+        --checkbox-accent: #63b3ed;
+        --sortable-bg: #1f2933;
+        --sortable-border: #374151;
+        --sortable-placeholder-bg: rgba(99, 179, 237, 0.18);
+        --sortable-placeholder-border: rgba(99, 179, 237, 0.35);
+        --sortable-handle: #94a3b8;
+        --primary-button-bg: #63b3ed;
+        --primary-button-hover-bg: #4299e1;
+        --primary-button-text: #0f172a;
+        --link-color: #90cdf4;
+        --link-hover-color: #63b3ed;
+        --list-item-bg: rgba(99, 179, 237, 0.18);
+        --list-item-text: #e0f2fe;
+        --list-item-border: rgba(99, 179, 237, 0.4);
+        --divider-line: #374151;
+        --divider-pill-bg: #1f2933;
+        --divider-pill-text: #94a3b8;
+        --drag-hover-shadow: 0 2px 8px rgba(15, 23, 42, 0.4);
+        --theme-toggle-bg: rgba(55, 65, 81, 0.6);
+        --theme-toggle-border: rgba(148, 163, 184, 0.5);
+        --theme-toggle-text: #e2e8f0;
+        --theme-toggle-hover-bg: rgba(75, 85, 99, 0.85);
+        color-scheme: dark;
+      }
+
       .container {
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 15px;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-        padding: 40px;
-        max-width: 600px;
+        background: var(--container-bg);
+        border-radius: 16px;
+        box-shadow: 0 10px 40px var(--container-shadow-primary), 0 2px 8px var(--container-shadow-secondary);
+        padding: 48px;
+        max-width: 680px;
         width: 100%;
-        text-align: center;
-        backdrop-filter: blur(10px);
+        position: relative;
+        transition: background 0.3s ease, box-shadow 0.3s ease;
       }
+
       h1 {
-        font-weight: 700;
-        font-size: 2.5rem;
-        margin-bottom: 20px;
-        color: #fff;
+        font-weight: 600;
+        font-size: 2rem;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        text-align: center;
+        letter-spacing: -0.5px;
       }
+
+      .subtitle {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 36px;
+        line-height: 1.5;
+      }
+
+      .form-group {
+        margin-bottom: 28px;
+      }
+
       label {
-        font-size: 1rem;
-        margin-bottom: 5px;
-        color: #ccc;
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-label);
+        text-align: left;
       }
+
+      .help-text {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 6px;
+        text-align: left;
+      }
+
       .form-control-file,
       .form-control,
       .form-select {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 10px;
-        border: none;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-        color: #fff;
+        background: var(--input-bg);
+        border: 2px solid var(--input-border);
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        color: var(--input-text);
+        width: 100%;
+        transition: all 0.2s ease;
       }
+
+      select.form-control,
+      select.form-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232d3748' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 12px 12px;
+        padding-right: 44px;
+        line-height: 1.5;
+        height: auto;
+        min-height: 48px;
+      }
+
+      [data-theme="dark"] select.form-control,
+      [data-theme="dark"] select.form-select,
+      body[data-theme="dark"] select.form-control,
+      body[data-theme="dark"] select.form-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e2e8f0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 12px 12px;
+      }
+
+      select.form-control option,
+      select.form-select option {
+        color: var(--input-text);
+        background: var(--container-bg);
+        padding: 12px;
+      }
+
+      .form-control-file:hover,
+      .form-control:hover,
+      .form-select:hover {
+        border-color: var(--input-hover-border);
+      }
+
+      .form-control-file:focus,
+      .form-control:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--input-focus-border);
+        background: var(--input-focus-bg);
+        box-shadow: 0 0 0 3px var(--input-focus-shadow);
+      }
+
       .form-control-file::file-selector-button {
-        background: #4A90E2;
+        background: var(--primary-button-bg);
         border: none;
-        border-radius: 10px;
-        padding: 5px 10px;
-        color: #fff;
+        border-radius: 6px;
+        padding: 8px 16px;
+        color: var(--primary-button-text);
+        font-weight: 500;
+        font-size: 0.875rem;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.2s ease;
+        margin-right: 12px;
       }
+
       .form-control-file::file-selector-button:hover {
-        background: #357ABD;
+        background: var(--primary-button-hover-bg);
+        transform: translateY(-1px);
       }
-      .btn-primary {
-        background: #4A90E2;
-        border: none;
-        border-radius: 20px;
-        padding: 10px 20px;
-        font-size: 1rem;
-        transition: 0.3s;
+
+      .column-selector-label {
+        margin-bottom: 12px;
       }
-      .btn-primary:hover {
-        background: #357ABD;
-        transform: scale(1.05);
-      }
-      .list-group-item-info {
-        background-color: rgba(0, 123, 255, 0.6);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        margin-bottom: 10px;
-      }
-      .list-group {
-        padding-left: 0;
-      }
-      .btn-link {
-        color: #fff;
-        text-decoration: underline;
-        margin-top: 15px;
-      }
+
       .sortable-list {
         list-style-type: none;
         padding: 0;
         margin: 0;
+        background: var(--input-bg);
+        border-radius: 8px;
+        padding: 12px;
+        border: 2px solid var(--input-border);
       }
+
       .sortable-item {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 5px;
-        cursor: move;
-        color: #fff;
+        background: var(--sortable-bg);
+        border: 1px solid var(--sortable-border);
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        cursor: grab;
+        color: var(--text-label);
         display: flex;
         align-items: center;
+        transition: all 0.2s ease;
+        user-select: none;
       }
+
+      .sortable-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .sortable-item:hover {
+        border-color: var(--input-hover-border);
+        box-shadow: var(--drag-hover-shadow);
+        transform: translateY(-1px);
+      }
+
+      .sortable-item:active {
+        cursor: grabbing;
+      }
+
       .sortable-item input[type="checkbox"] {
-        margin-right: 10px;
+        margin-right: 12px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--checkbox-accent);
       }
+
+      .sortable-item label {
+        margin: 0;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: grab;
+        flex: 1;
+      }
+
+      .drag-handle {
+        color: var(--sortable-handle);
+        font-size: 1.2rem;
+        margin-left: 8px;
+      }
+
       .sortable-placeholder {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px dashed rgba(255, 255, 255, 0.5);
-        border-radius: 10px;
-        height: 40px;
-        margin-bottom: 5px;
+        background: var(--sortable-placeholder-bg);
+        border: 2px dashed var(--sortable-placeholder-border);
+        border-radius: 6px;
+        height: 48px;
+        margin-bottom: 8px;
       }
+
+      .btn-primary {
+        background: var(--primary-button-bg);
+        border: none;
+        border-radius: 8px;
+        padding: 14px 32px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--primary-button-text);
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 12px;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-button-hover-bg);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-link {
+        display: inline-block;
+        color: var(--link-color);
+        text-decoration: none;
+        margin-top: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+
+      .btn-link:hover {
+        color: var(--link-hover-color);
+        text-decoration: underline;
+      }
+
+      .list-group {
+        padding-left: 0;
+        margin-top: 24px;
+      }
+
+      .list-group-item-info {
+        background-color: var(--list-item-bg);
+        color: var(--list-item-text);
+        border: 1px solid var(--list-item-border);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+      }
+
+      .divider {
+        text-align: center;
+        margin: 32px 0;
+        position: relative;
+      }
+
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--divider-line);
+      }
+
+      .divider span {
+        background: var(--divider-pill-bg);
+        padding: 0 16px;
+        position: relative;
+        color: var(--divider-pill-text);
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .theme-toggle {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        background: var(--theme-toggle-bg);
+        color: var(--theme-toggle-text);
+        border: 1px solid var(--theme-toggle-border);
+        border-radius: 999px;
+        padding: 6px 16px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .theme-toggle:hover {
+        background: var(--theme-toggle-hover-bg);
+      }
+
+      .theme-toggle:focus-visible {
+        outline: 2px solid var(--primary-button-bg);
+        outline-offset: 2px;
+      }
+
       @media (max-width: 576px) {
         .container {
-          padding: 20px;
+          padding: 32px 24px;
         }
+
         h1 {
-          font-size: 2rem;
+          font-size: 1.75rem;
         }
+
+        .subtitle {
+          font-size: 0.875rem;
+        }
+
         .btn-primary {
-          padding: 8px 16px;
-          font-size: 0.9rem;
+          padding: 12px 24px;
+          font-size: 0.95rem;
+        }
+
+        .form-group {
+          margin-bottom: 24px;
+        }
+
+        .theme-toggle {
+          position: static;
+          display: inline-block;
+          margin-bottom: 20px;
+          margin-left: auto;
         }
       }
     </style>
@@ -153,46 +480,118 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         var sortableList = document.querySelector(".sortable-list");
-        var sortable = Sortable.create(sortableList, {
-          animation: 150,
-          ghostClass: "sortable-placeholder",
-          onEnd: function (evt) {
-            var columnOrder = Array.from(sortableList.children).map(function (
-              item
-            ) {
-              return item.getAttribute("data-value");
-            });
-            document.getElementById("column_order").value =
-              columnOrder.join(",");
-          },
-        });
+        if (sortableList) {
+          Sortable.create(sortableList, {
+            animation: 150,
+            ghostClass: "sortable-placeholder",
+            onEnd: function () {
+              var columnOrder = Array.from(sortableList.children).map(function (item) {
+                return item.getAttribute("data-value");
+              });
+              document.getElementById("column_order").value = columnOrder.join(",");
+            },
+          });
+        }
+
+        var storageKey = "attendance-theme";
+        var root = document.documentElement;
+        var themeToggle = document.getElementById("themeToggle");
+
+        function applyTheme(theme) {
+          var nextTheme = theme === "dark" ? "dark" : "light";
+          root.setAttribute("data-theme", nextTheme);
+          document.body.setAttribute("data-theme", nextTheme);
+          if (themeToggle) {
+            var isDark = nextTheme === "dark";
+            themeToggle.setAttribute("aria-pressed", isDark);
+            themeToggle.textContent = isDark ? "Light Mode" : "Dark Mode";
+          }
+        }
+
+        var storedTheme = null;
+        try {
+          storedTheme = localStorage.getItem(storageKey);
+        } catch (error) {
+          storedTheme = null;
+        }
+
+        var prefersDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+        var initialTheme =
+          storedTheme ||
+          (prefersDark && prefersDark.matches ? "dark" : root.getAttribute("data-theme") || "light");
+
+        applyTheme(initialTheme);
+
+        if (themeToggle) {
+          themeToggle.addEventListener("click", function () {
+            var currentTheme = root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+            var nextTheme = currentTheme === "dark" ? "light" : "dark";
+            applyTheme(nextTheme);
+            try {
+              localStorage.setItem(storageKey, nextTheme);
+            } catch (error) {
+              /* localStorage may be unavailable */
+            }
+          });
+        }
+
+        if (prefersDark) {
+          prefersDark.addEventListener("change", function (event) {
+            var hasStoredTheme = false;
+            try {
+              hasStoredTheme = !!localStorage.getItem(storageKey);
+            } catch (error) {
+              hasStoredTheme = false;
+            }
+            if (!hasStoredTheme) {
+              applyTheme(event.matches ? "dark" : "light");
+            }
+          });
+        }
       });
     </script>
   </head>
   <body>
     <div class="container">
-      <h1>Attendance Files Processor</h1>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false">
+        Dark Mode
+      </button>
+      <h1>Attendance Processor</h1>
+      <p class="subtitle">
+        Upload your attendance reports and generate a consolidated CSV file
+      </p>
+
       <form method="post" enctype="multipart/form-data">
         <div class="form-group">
-          <label for="weekly_file">Weekly Attendance Report:</label>
+          <label for="weekly_file">Weekly Attendance Report</label>
           <input
             type="file"
             class="form-control-file"
             name="weekly_file"
             id="weekly_file"
+            accept=".csv,.xlsx"
+            required
           />
+          <small class="help-text">CSV or Excel file from VLA weekly report</small>
         </div>
+
         <div class="form-group">
-          <label for="attendance_file">Attendance Report:</label>
+          <label for="attendance_file">Full Attendance Report</label>
           <input
             type="file"
             class="form-control-file"
             name="attendance_file"
             id="attendance_file"
+            accept=".csv,.xlsx"
+            required
           />
+          <small class="help-text">CSV or Excel file with all student records</small>
         </div>
+
+        <div class="divider"><span>Options</span></div>
+
         <div class="form-group">
-          <label for="sort_option">Sort Option:</label>
+          <label for="sort_option">Sort Order</label>
           <select
             class="form-control form-select"
             name="sort_option"
@@ -203,63 +602,80 @@
             </option>
             <option value="last_first">Last Name, First Name</option>
           </select>
+          <small class="help-text">Choose how to sort students in the output</small>
         </div>
+
         <div class="form-group">
-          <label for="columns">Select and Order Columns:</label>
+          <label for="columns" class="column-selector-label">Column Selection & Order</label>
+          <small class="help-text" style="display: block; margin-bottom: 12px;">
+            Check columns to include and drag to reorder
+          </small>
           <ul class="sortable-list">
             <li class="sortable-item" data-value="Weekly Hours">
               <input
                 type="checkbox"
                 name="columns"
                 value="Weekly Hours"
+                id="col_weekly"
                 checked
               />
-              Weekly Hours
+              <label for="col_weekly">Weekly Hours</label>
+              <span class="drag-handle" aria-hidden="true">&#9776;</span>
             </li>
             <li class="sortable-item" data-value="Lessons Complete">
               <input
                 type="checkbox"
                 name="columns"
                 value="Lessons Complete"
+                id="col_lessons"
                 checked
               />
-              Lessons Complete
+              <label for="col_lessons">Lessons Complete</label>
+              <span class="drag-handle" aria-hidden="true">&#9776;</span>
             </li>
             <li class="sortable-item" data-value="Difference in Lessons">
               <input
                 type="checkbox"
                 name="columns"
                 value="Difference in Lessons"
+                id="col_diff"
                 checked
               />
-              Difference in Lessons
+              <label for="col_diff">Difference in Lessons</label>
+              <span class="drag-handle" aria-hidden="true">&#9776;</span>
             </li>
             <li class="sortable-item" data-value="Total Cumulative Hours">
               <input
                 type="checkbox"
                 name="columns"
                 value="Total Cumulative Hours"
+                id="col_total"
                 checked
               />
-              Total Cumulative Hours
+              <label for="col_total">Total Cumulative Hours</label>
+              <span class="drag-handle" aria-hidden="true">&#9776;</span>
             </li>
             <li class="sortable-item" data-value="Hours Required">
               <input
                 type="checkbox"
                 name="columns"
                 value="Hours Required"
+                id="col_required"
                 checked
               />
-              Hours Required
+              <label for="col_required">Hours Required</label>
+              <span class="drag-handle" aria-hidden="true">&#9776;</span>
             </li>
             <li class="sortable-item" data-value="Hours Ahead/Behind">
               <input
                 type="checkbox"
                 name="columns"
                 value="Hours Ahead/Behind"
+                id="col_ahead"
                 checked
               />
-              Hours Ahead/Behind
+              <label for="col_ahead">Hours Ahead/Behind</label>
+              <span class="drag-handle" aria-hidden="true">&#9776;</span>
             </li>
           </ul>
           <input
@@ -269,11 +685,16 @@
             value="Weekly Hours,Lessons Complete,Difference in Lessons,Total Cumulative Hours,Hours Required,Hours Ahead/Behind"
           />
         </div>
-        <button type="submit" class="btn btn-primary">Generate</button>
+
+        <button type="submit" class="btn btn-primary">Generate Report</button>
       </form>
-      <a href="{{ url_for('instructions') }}" class="btn btn-link"
-        >Instructions</a
-      >
+
+      <div style="text-align: center;">
+        <a href="{{ url_for('instructions') }}" class="btn btn-link">
+          Need help? View instructions
+        </a>
+      </div>
+
       {% with messages = get_flashed_messages() %} {% if messages %}
       <div class="mt-4">
         <ul class="list-group">
@@ -289,3 +710,4 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   </body>
 </html>
+

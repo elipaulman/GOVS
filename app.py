@@ -169,4 +169,7 @@ def instructions():
     return render_template('instructions.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    # For local development only
+    # In production, Gunicorn will run the app via render.yaml
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)
