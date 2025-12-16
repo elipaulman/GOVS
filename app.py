@@ -1,24 +1,82 @@
-import os
-import pandas as pd
-from flask import Flask, request, render_template, redirect, url_for, flash, send_file
-from werkzeug.utils import secure_filename
-from io import BytesIO
-from datetime import datetime
 import logging
+import os
+import shutil
+import tempfile
+from datetime import datetime
+from io import BytesIO
+
+import pandas as pd
+from flask import Flask, flash, redirect, render_template, request, send_file, url_for
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-me')
+default_upload_root = '/tmp/uploads' if os.name != 'nt' else os.path.join(os.getcwd(), 'uploads')
+app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', default_upload_root)
 app.config['ALLOWED_EXTENSIONS'] = {'csv', 'xlsx'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production' or bool(os.environ.get('RENDER'))
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=os.environ.get('LOG_LEVEL', 'INFO'))
+logger = logging.getLogger(__name__)
+
+if app.secret_key == 'dev-secret-key-change-me':
+    logger.warning('SECRET_KEY is using the fallback value. Set SECRET_KEY for production deployments.')
+
+REQUIRED_WEEKLY_COLUMNS = {'StudentName', 'TotalMin'}
+REQUIRED_ATTENDANCE_COLUMNS = {'Last Name', 'First Name', 'Lessons Complete', 'Difference', 'Hours Required', 'Total Hours'}
+NUMERIC_COLUMNS = ('Lessons Complete', 'Difference', 'Hours Required', 'Total Hours')
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+
+def validate_required_columns(df, required_columns, source_label):
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        raise ValueError(f"{source_label} missing required columns: {', '.join(missing)}")
+
+
+def load_report(path, is_weekly=False):
+    """
+    Load CSV or XLSX into a DataFrame. Weekly report keeps TotalMin as string so
+    we can safely normalize time values before computation.
+    """
+    _, ext = os.path.splitext(path.lower())
+    if ext == '.xlsx':
+        df = pd.read_excel(path, engine='openpyxl')
+    else:
+        df = pd.read_csv(path)
+
+    if is_weekly and 'TotalMin' in df.columns:
+        df['TotalMin'] = df['TotalMin'].astype(str)
+    return df
+
+def normalize_attendance_names(attendance_rep):
+    attendance_rep['Last Name'] = attendance_rep['Last Name'].str.strip().str.lower()
+    attendance_rep['First Name'] = attendance_rep['First Name'].str.strip().str.lower()
+
+
+def normalize_weekly_names(weekly_report):
+    name_split = weekly_report['StudentName'].str.split(',', n=1, expand=True)
+    weekly_report['Last Name'] = name_split[0].str.strip().str.lower()
+    weekly_report['First Name'] = name_split[1].fillna('').str.strip().str.lower()
+    if weekly_report['First Name'].eq('').any():
+        raise ValueError("Weekly report names must use 'Last, First' format in the StudentName column.")
+
+
+def convert_numeric_columns(df, columns, source_label):
+    for col in columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    invalid_columns = [col for col in columns if df[col].isnull().any()]
+    if invalid_columns:
+        raise ValueError(f"{source_label} has non-numeric values in: {', '.join(invalid_columns)}")
+
 
 def time_to_hours(time_val):
     """Convert time values (e.g., '25:04:00', '8:32') to 'HH:MM' format."""
@@ -54,14 +112,16 @@ def format_hours_minutes(hours_minutes_str):
 def process_files(weekly_path, attendance_path, sort_option, selected_columns):
     try:
         # Load files
-        attendance_rep = pd.read_csv(attendance_path)
-        weekly_report = pd.read_csv(weekly_path, dtype={'TotalMin': str})  # Read as string to avoid auto-parsing
+        attendance_rep = load_report(attendance_path)
+        weekly_report = load_report(weekly_path, is_weekly=True)  # Keep TotalMin as strings for consistent parsing
+
+        validate_required_columns(attendance_rep, REQUIRED_ATTENDANCE_COLUMNS, 'Attendance report')
+        validate_required_columns(weekly_report, REQUIRED_WEEKLY_COLUMNS, 'Weekly report')
 
         # Standardize names
-        attendance_rep['Last Name'] = attendance_rep['Last Name'].str.strip().str.lower()
-        attendance_rep['First Name'] = attendance_rep['First Name'].str.strip().str.lower()
-        weekly_report['Last Name'] = weekly_report['StudentName'].str.split(',').str[0].str.strip().str.lower()
-        weekly_report['First Name'] = weekly_report['StudentName'].str.split(',').str[1].str.strip().str.lower()
+        normalize_attendance_names(attendance_rep)
+        normalize_weekly_names(weekly_report)
+        convert_numeric_columns(attendance_rep, NUMERIC_COLUMNS, 'Attendance report')
 
         # Process Weekly Hours (from "TotalMin" column)
         weekly_report['Weekly Hours'] = weekly_report['TotalMin'].apply(time_to_hours)
@@ -78,6 +138,8 @@ def process_files(weekly_path, attendance_path, sort_option, selected_columns):
         merged_data['Hours Ahead/Behind'] = merged_data['Total Hours'] - merged_data['Hours Required']
 
         # Sort data
+        if sort_option not in ('last_first', 'hours_last_first'):
+            sort_option = 'hours_last_first'
         if sort_option == 'last_first':
             merged_data.sort_values(by=['Last Name', 'First Name'], inplace=True)
         else:
@@ -110,11 +172,11 @@ def process_files(weekly_path, attendance_path, sort_option, selected_columns):
                 output_data.append(row[final_columns].to_dict())
                 last_hours_required = row['Hours Required']
         else:
-            output_data = merged_data.to_dict(orient='records')
+            output_data = final_data.to_dict(orient='records')
 
         return pd.DataFrame(output_data)
     except Exception as e:
-        logging.error(f'Error processing files: {e}')
+        logger.error(f'Error processing files: {e}')
         raise
 
 @app.route('/', methods=['GET', 'POST'])
@@ -138,10 +200,11 @@ def index():
             flash('Invalid file type. Only CSV and Excel files are allowed.')
             return redirect(request.url)
         
+        temp_dir = tempfile.mkdtemp(dir=app.config['UPLOAD_FOLDER'])
         weekly_filename = secure_filename(weekly_file.filename)
         attendance_filename = secure_filename(attendance_file.filename)
-        weekly_path = os.path.join(app.config['UPLOAD_FOLDER'], weekly_filename)
-        attendance_path = os.path.join(app.config['UPLOAD_FOLDER'], attendance_filename)
+        weekly_path = os.path.join(temp_dir, weekly_filename)
+        attendance_path = os.path.join(temp_dir, attendance_filename)
         
         try:
             with open(weekly_path, 'wb') as wf, open(attendance_path, 'wb') as af:
@@ -158,15 +221,18 @@ def index():
             flash(f'An error occurred: {e}')
             return redirect(request.url)
         finally:
-            if os.path.exists(weekly_path):
-                os.remove(weekly_path)
-            if os.path.exists(attendance_path):
-                os.remove(attendance_path)
+            shutil.rmtree(temp_dir, ignore_errors=True)
     return render_template('index.html')
 
 @app.route('/instructions')
 def instructions():
     return render_template('instructions.html')
+
+
+@app.route('/healthz')
+def healthz():
+    return {'status': 'ok'}, 200
+
 
 if __name__ == '__main__':
     # For local development only

@@ -1,0 +1,21 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code settings
+.vscode/
+
+# Local uploads/output
+uploads/
+*.csv
+*.xlsx
+
+# OS junk
+.DS_Store
+Thumbs.db

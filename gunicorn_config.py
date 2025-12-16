@@ -1,6 +1,12 @@
-# gunicorn_config.py
+"""Gunicorn configuration tuned for Render deployment."""
 
-bind = "0.0.0.0:10000"
-workers = 2  # Number of worker processes
-threads = 4  # Number of threads per worker
-timeout = 120  # Timeout in seconds
+import multiprocessing
+import os
+
+port = os.environ.get("PORT", "10000")
+bind = f"0.0.0.0:{port}"
+
+# Keep worker count conservative for free/small plans to avoid OOM.
+workers = int(os.environ.get("GUNICORN_WORKERS", max(2, multiprocessing.cpu_count() // 2)))
+threads = int(os.environ.get("GUNICORN_THREADS", 4))
+timeout = int(os.environ.get("GUNICORN_TIMEOUT", 120))
